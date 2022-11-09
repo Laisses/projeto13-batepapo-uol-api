@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { MongoClient } from "mongodb";
+import { routes } from "./routes.js";
 
 dotenv.config();
 const app = express();
@@ -18,6 +19,7 @@ const main = async () => {
     const db = mongoClient.db("batePapoUol");
     app.listen(PORT, () => {
         console.log(`server running on http://localhost:${PORT}`);
+        routes(app, db);
     });
 };
 
