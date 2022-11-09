@@ -5,6 +5,16 @@ export const routes = (app, db) => {
     app.post("/participants", async (req, res) => {
         const { name } = req.body;
 
+        const users = await participants
+            .find()
+            .toArray();
+
+        users.forEach(user => {
+            if (user.name === name) {
+                res.sendStatus(409);
+            }
+        })
+
         await participants.insertOne({
             name,
             lastStatus: Date.now()
