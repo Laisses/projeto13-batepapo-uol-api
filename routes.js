@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+
 export const routes = (app, db) => {
     const participants = db.collection("participants");
     const messages = db.collection("messages");
@@ -25,7 +27,7 @@ export const routes = (app, db) => {
             to: "Todos",
             text: "entra na sala...",
             type: "status",
-            time: Date.now()
+            time: dayjs(new Date()).format("HH:MM:ss")
         });
 
         res.sendStatus(201);
