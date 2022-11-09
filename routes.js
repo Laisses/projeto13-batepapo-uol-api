@@ -54,7 +54,19 @@ export const routes = (app, db) => {
 
     app.get("/messages", async (req, res) => {
         const { limit } = req.query;
-        const newMessages = await messages.find().limit(Number(limit) || 0).toArray();
-        res.status(200).send(newMessages);
+        const { user } = req.headers;
+        const allMessages = await messages.find().limit(Number(limit) || 0).toArray();
+
+        const filteredMessages = allMessages.filter(message => {
+            if ((message.to === user || message.from === user) && message.type === "private_message") {
+                return true;
+            } else if (message.type === "private_message"){
+                return false;
+            } else {
+                return true;
+            }
+        })
+        console.log(req.headers)
+        res.status(200).send(filteredMessages);
     });
 }
