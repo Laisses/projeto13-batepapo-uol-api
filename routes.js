@@ -69,4 +69,17 @@ export const routes = (app, db) => {
         console.log(req.headers)
         res.status(200).send(filteredMessages);
     });
+
+    app.post("/status", async (req, res) => {
+        const { user } = req.headers;
+        const users = await participants
+            .find()
+            .toArray();
+
+        users.forEach(u => {
+            if (u.name !== user) {
+                res.sendStatus(409);
+            }
+        });
+    });
 }
