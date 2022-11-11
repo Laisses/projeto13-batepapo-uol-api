@@ -95,14 +95,19 @@ export const routes = (app, db) => {
 
     app.post("/status", async (req, res) => {
         const { user } = req.headers;
-        const users = await participants
-            .find()
-            .toArray();
 
-        users.forEach(u => {
-            if (u.name !== user) {
-                res.sendStatus(409);
-            }
-        });
+        const participant = await participants.findOne({ "name": user });
+
+        if (!participant) {
+            res.sendStatus(404);
+            return;
+        }
+
+        await participants.updateOne(
+            {"name": user},
+            {$set: {"lastStatus": Date.now()}}
+        );
+
+        res.sendStatus(200);
     });
 }
