@@ -1,5 +1,8 @@
 import Joi from "joi";
 
+const validator = schema => payload =>
+    schema.validate(payload, { abortEarly: false });
+
 const messageSchema = Joi.object({
     to: Joi.string().min(1).required(),
     text: Joi.string().min(1).required(),
@@ -9,3 +12,7 @@ const messageSchema = Joi.object({
 const participantSchema = Joi.object({
     user: Joi.string().min(1).required()
 });
+
+export const validateMessage = validator(messageSchema);
+
+export const validateParticipant = validator(participantSchema);

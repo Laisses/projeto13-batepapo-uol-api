@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import { validateMessage, validateParticipant } from "./validator.js";
 
 export const routes = (app, db) => {
     const participants = db.collection("participants");
@@ -6,6 +7,13 @@ export const routes = (app, db) => {
 
     app.post("/participants", async (req, res) => {
         const { name } = req.body;
+        const { error } = validateParticipant(req.body);
+
+        if (error) {
+            const errors = error.details.map((detail) => detail.message);
+            res.status(422).send(errors);
+            return;
+        }
 
         const users = await participants
             .find()
@@ -41,6 +49,21 @@ export const routes = (app, db) => {
     app.post("/messages", async (req, res) => {
         const { to, text, type } = req.body;
         const from = req.headers.user;
+
+        const participant = await participants.findOne({ "name": from });
+        const { error } = validateMessage(req.body);
+
+        if (participant === null || participant === undefined) {
+            res.status(422).send("username not found");
+            return;
+        }
+
+        if (error) {
+            const errors = error.details.map((detail) => detail.message);
+            res.status(422).send(errors);
+            return;
+        }
+
         await messages.insertOne({
             from,
             to,
