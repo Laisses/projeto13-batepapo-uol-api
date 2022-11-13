@@ -110,4 +110,26 @@ export const routes = (app, db) => {
 
         res.sendStatus(200);
     });
-}
+
+    const updateParticipants = async () => {
+        const users = await participants.find().toArray();
+        const now = Date.now();
+
+        users.forEach(async user => {
+            if ((now - user.lastStatus) > 10) {
+
+                await messages.insertOne({
+                    from: user.name,
+                    to: "Todos",
+                    text: "sai na sala...",
+                    type: "status",
+                    time: dayjs(new Date()).format("HH:MM:ss")
+                });
+
+                await participants.deleteOne({_id: user._id});
+            }
+        });
+    };
+
+    //setInterval(updateParticipants, 15000);
+};
