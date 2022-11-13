@@ -10,7 +10,7 @@ const messageSchema = Joi.object({
 });
 
 const participantSchema = Joi.object({
-    user: Joi.string().min(1).required()
+    name: Joi.string().min(1).required()
 });
 
 export const validateMessage = validator(messageSchema);
