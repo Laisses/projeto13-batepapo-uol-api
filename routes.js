@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import { ObjectId } from "mongodb";
 import { validateMessage, validateParticipant } from "./validator.js";
 
 export const routes = (app, db) => {
@@ -109,6 +110,27 @@ export const routes = (app, db) => {
         );
 
         res.sendStatus(200);
+    });
+
+    app.delete("/messages/:id", async (req, res) => {
+        const { user } = req.headers;
+        const { id } = req.params;
+
+        const message = await messages.findOne({_id: ObjectId(id)});
+
+        if (!message) {
+            res.sendStatus(404);
+            return;
+        }
+
+        if (message.from !== user) {
+            res.sendStatus(401);
+            return;
+        }
+
+        await messages.deleteOne({_id: ObjectId(id)});
+        res.sendStatus(200);
+
     });
 
     const updateParticipants = async () => {
