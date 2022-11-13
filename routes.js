@@ -9,6 +9,7 @@ export const routes = (app, db) => {
     app.post("/participants", async (req, res) => {
         const { name } = req.body;
         const { error } = validateParticipant(req.body);
+        const now = Date.now();
 
         if (error) {
             const errors = error.details.map((detail) => detail.message);
@@ -28,7 +29,7 @@ export const routes = (app, db) => {
 
         await participants.insertOne({
             name,
-            lastStatus: Date.now()
+            lastStatus: now
         });
 
         await messages.insertOne({
@@ -36,7 +37,7 @@ export const routes = (app, db) => {
             to: "Todos",
             text: "entra na sala...",
             type: "status",
-            time: dayjs(new Date()).format("HH:MM:ss")
+            time: dayjs(now).format("HH:MM:ss")
         });
 
         res.sendStatus(201);
@@ -90,8 +91,7 @@ export const routes = (app, db) => {
                 return true;
             }
         })
-        console.log(req.headers)
-        res.status(200).send(filteredMessages);
+        res.status(200).send(filteredMessages.reverse());
     });
 
     app.post("/status", async (req, res) => {
@@ -138,14 +138,14 @@ export const routes = (app, db) => {
         const now = Date.now();
 
         users.forEach(async user => {
-            if ((now - user.lastStatus) > 10) {
+            if ((now - user.lastStatus) > 10000) {
 
                 await messages.insertOne({
                     from: user.name,
                     to: "Todos",
                     text: "sai na sala...",
                     type: "status",
-                    time: dayjs(new Date()).format("HH:MM:ss")
+                    time: dayjs(now).format("HH:MM:ss")
                 });
 
                 await participants.deleteOne({_id: user._id});
@@ -153,5 +153,5 @@ export const routes = (app, db) => {
         });
     };
 
-    //setInterval(updateParticipants, 15000);
+    setInterval(updateParticipants, 15000);
 };
