@@ -133,6 +133,34 @@ export const routes = (app, db) => {
 
     });
 
+    app.put("/messages/:id", async (req, res) => {
+        const { id } = req.params;
+        const { user } = req.headers;
+
+        const message = await messages.findOne({_id: ObjectId(id)});
+
+        if (!message) {
+            res.sendStatus(404);
+            return;
+        }
+
+        if (message.from !== user) {
+            res.sendStatus(401);
+            return;
+        }
+
+        const { error } = validateMessage(req.body);
+
+        if(error) {
+            const errors = error.details.map((detail) => detail.message);
+            res.status(422).send(errors);
+            return;
+        }
+
+        await messages.updateOne({_id: ObjectId(id)}, {$set: req.body});
+        res.sendStatus(200);
+    });
+
     const updateParticipants = async () => {
         const users = await participants.find().toArray();
         const now = Date.now();
