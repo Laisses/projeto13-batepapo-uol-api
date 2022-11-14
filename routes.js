@@ -91,7 +91,7 @@ export const routes = (app, db) => {
                 return true;
             }
         })
-        res.status(200).send(filteredMessages.reverse());
+        res.status(200).send(filteredMessages);
     });
 
     app.post("/status", async (req, res) => {
